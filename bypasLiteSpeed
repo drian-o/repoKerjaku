@@ -1,6 +1,6 @@
 <?php
 
-$password = "777b43f1482cc12b7383532fbc788784"; //pjpneverdie88
+$password = "777b43f1482cc12b7383532fbc788784"; //pjpnever
 if(isset($_POST['password'])) {
     if(md5($_POST['password']) == $password) {
         setcookie('auth', md5($password));
