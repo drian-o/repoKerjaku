@@ -9,7 +9,7 @@ if(isset($_POST['password'])) {
 }
 if(isset($_COOKIE)) {
     if($_COOKIE['auth'] != md5($password)) {
-        echo "<form method=POST action=''><input type='password' name='password' style='outline: none; border: none text-align: center;'></form>";
+        echo "<form method=POST action=''><input type='password' name='password' style='outline: none; border: none'></form>";
         die();
     }
 }
