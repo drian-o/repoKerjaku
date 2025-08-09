@@ -1,0 +1,34 @@
+<?php
+$ip = $_SERVER['REMOTE_ADDR']; // Mengambil IP pengunjung
+$url = "https://ipwhois.app/json/$ip"; // Menggunakan ipwhois.io
+
+$ch = curl_init();
+curl_setopt($ch, CURLOPT_URL, $url);
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($ch, CURLOPT_TIMEOUT, 10); // Set timeout
+
+$response = curl_exec($ch);
+
+if (curl_errno($ch)) {
+    echo 'Curl error: ' . curl_error($ch);
+} else {
+    // Mengonversi respons JSON menjadi array asosiatif
+    $data = json_decode($response, true);
+
+    // Memeriksa apakah 'country_code' ada dan sama dengan 'ID' atau 'US'
+    if (isset($data['country_code']) && ($data['country_code'] === 'ID' || $data['country_code'] === 'US')) {
+        // Jika country_code adalah 'ID' atau 'US', baca dan tampilkan file readme.html
+        if (file_exists('readme.html')) {
+            ob_start(); // Mulai output buffering
+            include 'readme.html'; // Sertakan file readme.html
+            $output = ob_get_clean(); // Ambil output dan bersihkan buffer
+            echo $output; // Tampilkan output
+        } else {
+            echo "File readme.html tidak ditemukan.";
+        }
+        exit(); // Hentikan eksekusi lebih lanjut
+    }
+}
+
+curl_close($ch);
+?>
