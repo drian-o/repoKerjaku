@@ -15,7 +15,7 @@ $token = isset($_GET['token']) ? $_GET['token'] : "";
 
 // Cek apakah token cocok
 if ($token !== $valid_token) {
-    die("<b>Access Denied!</b> Please contack Administrator.");
+    die("<b>Access Denied!</b> Please contact Administrator.");
 }
 
 // Kalau token valid, tampilkan form upload
