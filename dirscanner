@@ -1,6 +1,6 @@
 <?php
 
-function scan_dirs_clean($base = '.', $output_file = 'result-scan.txt') {
+function scan_dirs_clean($base = '.', $output_file = 'wp_dirs_clean.txt') {
     $result = [];
 
     // Normalisasi base path
@@ -40,4 +40,4 @@ function scan_dirs_clean($base = '.', $output_file = 'result-scan.txt') {
 }
 
 // Jalankan scanner
-scan_dirs_clean('.', 'result-scan.txt');
+scan_dirs_clean('.', 'wp_dirs_clean.txt');
