@@ -1,0 +1,26 @@
+<?php
+
+function scanRecursive($dir){
+   
+   $cwd = getcwd();
+   //$scan = array_diff(scandir($dir), ['.', '..']);
+   $tree = glob(rtrim($dir, '/') . '/*');
+
+   foreach($tree as $sc) {
+    
+    if(strpos($sc, '.php')) {
+            $content = file_get_contents($sc);
+            $file_ini = str_replace("/", "", $_SERVER['PHP_SELF']);
+        
+            if(preg_match('/(eval*)|(GIF89a;|(error_reporting*)|(set_time_limit*)|(alfa))/', $content) && $sc != $file_ini){
+                echo $sc . " =>  Potential shell backdoor" . "<br>";
+            }
+        }
+    }
+}
+
+
+$cwd = getcwd();
+echo scanRecursive($cwd);
+
+?>
