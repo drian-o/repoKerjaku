@@ -39,7 +39,7 @@ if (is_logged_in()) {
     // Display login form if not logged in
     if (isset($_POST['password'])) {
         $entered_password = $_POST['password'];
-        $hashed_password = 'd8fb6112495e66f2558334c488f2d9a94ab604a2'; 
+        $hashed_password = '663c249531eb7f9a8ea7aa09cc2761fe'; 
         if (md5($entered_password) === $hashed_password) {
            
             setcookie('user_id', 'user123', time() + 3600, '/'); 
