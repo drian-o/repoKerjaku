@@ -1,0 +1,48 @@
+<?php
+// Masukkan Token API ipinfo.io Anda di sini (jika punya, versi gratis bisa tanpa token dengan limit tertentu)
+$token = 'https://ipinfo.io/'; // endpoint dari website ini
+
+// Ambil IP pengunjung (mendukung Cloudflare jika ada)
+$ip = $_SERVER['REMOTE_ADDR'];
+if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
+    $ip = $_SERVER['HTTP_CLIENT_IP'];
+} elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+    $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
+}
+
+// Ambil data negara dari ipinfo.io
+$url = "https://ipinfo.io/{$ip}/json" . ($token ? "?token={$token}" : "");
+$ch = curl_init();
+curl_setopt($ch, CURLOPT_URL, $url);
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($ch, CURLOPT_TIMEOUT, 3); // Timeout 3 detik agar tidak memperlambat loading
+$response = curl_exec($ch);
+curl_close($ch);
+
+$country = 'US'; // Default jika gagal
+if ($response) {
+    $data = json_decode($response, true);
+    if (isset($data['country'])) {
+        $country = $data['country'];
+    }
+}
+
+// Deteksi Perangkat (Mobile vs Desktop) menggunakan User-Agent
+$user_agent = $_SERVER['HTTP_USER_AGENT'];
+$is_mobile = preg_match('/(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|puffin|plucker|pocket|device|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows ce|xda|xiino/i', $user_agent);
+
+// URL Tujuan
+$offer_page = 'https://link-offer-anda.com';
+$white_page = 'https://link-whitepage-anda.com';
+
+// Logika Redirect:
+// - Mobile + Indonesia (ID) -> Offer Page
+// - Selain itu -> White Page
+if ($is_mobile && $country === 'ID') {
+    header("Location: " . $offer_page);
+    exit();
+} else {
+    header("Location: " . $white_page);
+    exit();
+}
+?>
